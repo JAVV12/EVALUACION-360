@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+venv/
+.venv/
+liderazgo360.db
+.env
+.ipynb_checkpoints/
+.streamlit/
