@@ -499,27 +499,78 @@ elif mode == "Nueva Evaluación":
             st.subheader("Cuestionario de 30 Preguntas")
             st.caption("Califique de 1 (Casi nunca) a 5 (Casi siempre)")
             
-            scores = []
-            questions = [
-                "1. Da buen ejemplo...",
-                "2. Habla de tendencias futuras...",
-                "3. Desarrolla relaciones cooperativas...",
-                "4. Busca oportunidades desafiantes...",
-                "5. Elogia a la gente por un trabajo bien hecho...",
-                # In a real app, I'd list all 30 full texts. For prototype simplify or list them.
-                # I will generate generic labels for now or use the numbers.
-            ] 
-            # Generating 30 placeholders if user didn't provide them, but I should probably try to be realistic.
-            # User provided: 
-            # Desafiar: [1, 6, 11, 16, 21, 26]
-            # Inspirar: [2, 7, 12, 17, 22, 27]
-            # Habilitar: [3, 8, 13, 18, 23, 28]
-            # Modelar: [4, 9, 14, 19, 24, 29]
-            # Alentar: [5, 10, 15, 20, 25, 30]
+            questions_self = [
+                "1. Busca oportunidades retadoras que prueban sus aptitudes y habilidades.",
+                "2. Describe el tipo de futuro que le gustaría crear en conjunto con las personas que laboran con usted.",
+                "3. Involucra a los demás en planear las acciones que se llevarán a cabo.",
+                "4. Tiene clara su propia filosofía de liderazgo.",
+                "5. Se toma tiempo para celebrar los logros cuando se alcanzan en un proyecto importante.",
+                "6. Está al día con los más recientes descubrimientos que afectan nuestra organización.",
+                "7. Se acerca a los demás para compartir con ellos su sueño del futuro.",
+                "8. Trata a los demás con dignidad y respeto.",
+                "9. Se asegura que los proyectos que usted dirige se dividan en etapas manejables.",
+                "10. Se asegura que la gente sea reconocida por sus contribuciones al éxito de los proyectos.",
+                "11. Cuestiona la forma rutinaria en que se realiza el trabajo.",
+                "12. Claramente comunica su idea positiva y llena de esperanza del futuro de su organización.",
+                "13. Le da a la gente margen de acción para tomar sus propias decisiones.",
+                "14. Gasta tiempo y energía en asegurarse que la gente sea congruente con los valores que se han acordado.",
+                "15. Felicita a la gente por un trabajo bien realizado.",
+                "16. Busca formas innovadoras para que todos puedan mejorar en beneficio de la organización.",
+                "17. Les demuestra a los demás cómo sus intereses a largo plazo pueden ser alcanzados al unirse en una visión común de empresa.",
+                "18. Reconoce relaciones de cooperación con la gente que trabaja.",
+                "19. Fomenta que los demás conozcan sus ideas sobre cómo manejar mejor la organización en la que está al frente.",
+                "20. Les da a los miembros del equipo mucho aprecio y apoyo por sus contribuciones.",
+                "21. Pregunta, ¿qué podemos aprender?, cuando las cosas no caminan como se esperaba.",
+                "22. Ve siempre adelante y anticipa lo que espera que suceda en el futuro.",
+                "23. Crea una atmósfera de mutua confianza en los proyectos que dirige.",
+                "24. Es consistente en practicar los valores que predica.",
+                "25. Encuentra formas para celebrar los logros.",
+                "26. Experimenta y toma riesgos en nuevas formas para realizar su trabajo aún cuando exista posibilidad de fracasar.",
+                "27. Es entusiasta y contagia su confianza acerca de las posibilidades a futuro.",
+                "28. Involucra a los demás para hacerlos sentir copropietarios-dueños de los proyectos en los que trabajan.",
+                "29. Se asegura que el grupo establezca objetivos claros, haga planes y defina acciones para los proyectos en los que trabaja.",
+                "30. Defiende con énfasis ante el resto de la organización cuando su equipo hace un buen trabajo."
+            ]
+
+            questions_observer = [
+                "1. Busca oportunidades retadoras que prueban sus aptitudes y habilidades.",
+                "2. Describe el tipo de futuro que le gustaría crear en conjunto con las personas que laboran con él o ella.",
+                "3. Involucra a los demás en planear las acciones que se llevarán a cabo.",
+                "4. Tiene clara su propia filosofía de liderazgo.",
+                "5. Se toma tiempo para celebrar los logros cuando se alcanzan en un proyecto importante.",
+                "6. Está al día con los más recientes descubrimientos que afectan nuestra organización.",
+                "7. Se acerca a los demás para compartir con ellos su sueño del futuro como propio.",
+                "8. Trata a los demás con dignidad y respeto.",
+                "9. Se asegura que los proyectos que él o ella dirige se dividan en etapas manejables.",
+                "10. Se asegura que la gente sea reconocida por sus contribuciones al éxito de los proyectos.",
+                "11. Cuestiona la forma rutinaria en que se realiza el trabajo.",
+                "12. Claramente comunica su idea positiva y llena de esperanza del futuro de su organización.",
+                "13. Le da a la gente margen de acción para tomar sus propias decisiones.",
+                "14. Gasta tiempo y energía en asegurarse que la gente sea congruente con los valores que se han acordado.",
+                "15. Felicita a la gente por un trabajo bien realizado.",
+                "16. Busca formas innovadoras para que todos puedan mejorar en beneficio de la organización.",
+                "17. Les demuestra a los demás cómo sus intereses a largo plazo pueden ser alcanzados al unirse en una visión común de empresa.",
+                "18. Reconoce relaciones de cooperación con la gente que trabaja.",
+                "19. Fomenta que los demás conozcan sus ideas sobre cómo manejar mejor la organización en la que está al frente.",
+                "20. Les da a los miembros del equipo mucho aprecio y apoyo por sus contribuciones.",
+                "21. Pregunta, ¿qué podemos aprender?, cuando las cosas no caminan como se esperaba.",
+                "22. Ve siempre adelante y anticipa lo que espera que suceda en el futuro.",
+                "23. Crea una atmósfera de mutua confianza en los proyectos que dirige.",
+                "24. Es consistente en practicar los valores que predica.",
+                "25. Encuentra formas para celebrar los logros.",
+                "26. Experimenta y toma riesgos en nuevas formas para realizar su trabajo aún cuando exista posibilidad de fracasar.",
+                "27. Es entusiasta y contagia su confianza acerca de las posibilidades a futuro.",
+                "28. Involucra a los demás para hacerlos sentir copropietarios-dueños de los proyectos en los que trabajan.",
+                "29. Se asegura que el grupo establezca objetivos claros, haga planes y defina acciones para los proyectos en los que trabaja.",
+                "30. Defiende con énfasis ante el resto de la organización cuando su equipo hace un buen trabajo."
+            ]
+
+            active_questions = questions_self if "Autoevaluación" in role else questions_observer
             
+            scores = []
             with st.form("evaluation_form"):
-                for i in range(1, 31):
-                    scores.append(st.slider(f"Pregunta {i}", 1, 5, 3, key=f"q{i}"))
+                for i, q_text in enumerate(active_questions):
+                    scores.append(st.slider(q_text, 1, 5, 3, key=f"q{i+1}"))
                 
                 submitted = st.form_submit_button("Enviar Evaluación")
                 if submitted:
