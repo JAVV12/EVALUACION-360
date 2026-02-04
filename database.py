@@ -1,108 +1,82 @@
-import sqlite3
-import datetime
+import os
 import json
+from supabase import create_client, Client
+import streamlit as st
 
-DB_NAME = "liderazgo360.db"
+# Cargar credenciales desde secrets de Streamlit (o variables de entorno)
+SUPABASE_URL = st.secrets.get("SUPABASE_URL") or os.environ.get("SUPABASE_URL")
+SUPABASE_KEY = st.secrets.get("SUPABASE_KEY") or os.environ.get("SUPABASE_KEY")
 
-def get_connection():
-    return sqlite3.connect(DB_NAME)
+# Solo inicializar si las credenciales están presentes
+supabase: Client = None
+if SUPABASE_URL and SUPABASE_KEY:
+    supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def init_db():
-    conn = get_connection()
-    c = conn.cursor()
-    # Create tables
-    c.execute('''CREATE TABLE IF NOT EXISTS companies
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE, created_at TIMESTAMP)''')
-    
-    c.execute('''CREATE TABLE IF NOT EXISTS evaluations
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT, company_id INTEGER, leader_name TEXT, 
-                  role TEXT, scores TEXT, created_at TIMESTAMP,
-                  FOREIGN KEY(company_id) REFERENCES companies(id))''')
-    conn.commit()
-    conn.close()
+    """En Supabase las tablas se crean vía SQL Editor, por lo que esta función es un placeholder."""
+    pass
 
 def create_company(name):
-    conn = get_connection()
-    c = conn.cursor()
+    if not supabase: return None
     try:
-        created_at = datetime.datetime.now()
-        c.execute("INSERT INTO companies (name, created_at) VALUES (?, ?)", (name, created_at))
-        conn.commit()
-        return c.lastrowid
-    except sqlite3.IntegrityError:
-        # Company already exists, get ID and update timestamp? Or just get ID.
-        # For ephemeral nature, maybe we just return the existing ID.
-        c.execute("SELECT id FROM companies WHERE name = ?", (name,))
-        res = c.fetchone()
-        return res[0] if res else None
-    finally:
-        conn.close()
+        # Intentar insertar
+        response = supabase.table("companies").insert({"name": name}).execute()
+        if response.data:
+            return response.data[0]["id"]
+    except Exception:
+        # Si ya existe, buscarlo
+        response = supabase.table("companies").select("id").eq("name", name).execute()
+        if response.data:
+            return response.data[0]["id"]
+    return None
 
 def get_company_by_id(company_id):
-    conn = get_connection()
-    c = conn.cursor()
-    c.execute("SELECT * FROM companies WHERE id = ?", (company_id,))
-    res = c.fetchone()
-    conn.close()
-    return res
+    if not supabase: return None
+    response = supabase.table("companies").select("*").eq("id", company_id).execute()
+    return response.data[0] if response.data else None
 
 def get_company_by_name(name):
-    conn = get_connection()
-    c = conn.cursor()
-    c.execute("SELECT * FROM companies WHERE name = ?", (name,))
-    res = c.fetchone()
-    conn.close()
-    return res
+    if not supabase: return None
+    response = supabase.table("companies").select("*").eq("name", name).execute()
+    return response.data[0] if response.data else None
 
 def add_evaluation(company_id, leader_name, role, scores):
-    """
-    scores should be a list of 30 integers (1-5) or a JSON string.
-    We'll store it as JSON string.
-    """
-    if isinstance(scores, list):
-        scores = json.dumps(scores)
+    if not supabase: return None
+    # Asegurar que scores sea una lista para JSONB
+    if isinstance(scores, str):
+        scores = json.loads(scores)
         
-    conn = get_connection()
-    c = conn.cursor()
-    created_at = datetime.datetime.now()
-    c.execute("INSERT INTO evaluations (company_id, leader_name, role, scores, created_at) VALUES (?, ?, ?, ?, ?)",
-              (company_id, leader_name, role, scores, created_at))
-    conn.commit()
-    row_id = c.lastrowid
-    conn.close()
-    return row_id
+    data = {
+        "company_id": company_id,
+        "leader_name": leader_name,
+        "role": role,
+        "scores": scores
+    }
+    response = supabase.table("evaluations").insert(data).execute()
+    return response.data[0]["id"] if response.data else None
 
 def get_evaluations_by_company(company_id):
-    conn = get_connection()
-    c = conn.cursor()
-    c.execute("SELECT * FROM evaluations WHERE company_id = ?", (company_id,))
-    rows = c.fetchall()
-    conn.close()
+    if not supabase: return []
+    response = supabase.table("evaluations").select("*").eq("company_id", company_id).execute()
+    rows = response.data
     
-    # Process rows to return a structured list/df friendly format
     data = []
     for r in rows:
-        # r: id, company_id, leader_name, role, scores, created_at
-        scores = json.loads(r[4])
+        # r: id, company_id, leader_name, role, scores (list/dict), created_at
+        scores = r["scores"]
         entry = {
-            "id": r[0],
-            "leader_name": r[2],
-            "role": r[3],
-            "created_at": r[5]
+            "id": r["id"],
+            "leader_name": r["leader_name"],
+            "role": r["role"],
+            "created_at": r["created_at"]
         }
-        # Unpack scores p1..p30
+        # Desempaquetar scores p1..p30 (asumimos que scores es una lista de 30 elementos)
         for i, s in enumerate(scores):
             entry[f"p{i+1}"] = s
         data.append(entry)
     return data
 
 def get_all_companies():
-    conn = get_connection()
-    c = conn.cursor()
-    c.execute("SELECT name FROM companies ORDER BY name ASC")
-    res = c.fetchall()
-    conn.close()
-    return [r[0] for r in res]
-
-if __name__ == "__main__":
-    init_db()
+    if not supabase: return []
+    response = supabase.table("companies").select("name").order("name").execute()
+    return [r["name"] for r in response.data] if response.data else []
